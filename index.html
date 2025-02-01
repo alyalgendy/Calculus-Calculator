@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Calculus Calculator</title>
+    <!-- Include nerdamer and its modules from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.8/nerdamer.core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.8/Calculus.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.8/Algebra.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.8/Solve.min.js"></script>
+    <style>
+        /* Overall page style */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f9;
+            color: #333;
+        }
+        /* Header style similar to Mathway */
+        header {
+            background: linear-gradient(90deg, #00a8ff, #0077e6);
+            padding: 15px 30px;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        /* Container for the calculator */
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 30px;
+        }
+        /* Input field styling */
+        .calc-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        /* Button styling */
+        button {
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            padding: 10px 15px;
+            margin: 5px 3px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* Keyboard button grid */
+        .keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 10px;
+            background: #e9f5ff;
+        }
+        .keyboard button {
+            flex: 0 0 60px;
+            margin: 5px;
+            font-size: 14px;
+            padding: 8px;
+            background-color: #ffcc00;
+            color: #333;
+        }
+        .keyboard button:hover {
+            background-color: #ff9900;
+        }
+        /* Result display */
+        #result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+        /* Extra input styling for evaluation */
+        .extra-input {
+            width: 200px;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .actions {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Calculus Calculator
+    </header>
+    <div class="container">
+        <p>
+            Enter a function in terms of <em>x</em> (e.g., <code>sin(x)</code>, <code>x^2</code>, <code>exp(x)</code>):
+        </p>
+        <input type="text" id="functionInput" class="calc-input" placeholder="Enter function here">
+        
+        <!-- Virtual keyboard for common functions and operators -->
+        <div class="keyboard">
+            <button onclick="insertSymbol('sin(')">sin</button>
+            <button onclick="insertSymbol('cos(')">cos</button>
+            <button onclick="insertSymbol('tan(')">tan</button>
+            <button onclick="insertSymbol('^')">^</button>
+            <button onclick="insertSymbol('sqrt(')">√</button>
+            <button onclick="insertSymbol('pi')">π</button>
+            <button onclick="insertSymbol('e')">e</button>
+            <button onclick="insertSymbol('log(')">log</button>
+            <button onclick="insertSymbol('exp(')">exp</button>
+            <button onclick="insertSymbol('+')">+</button>
+            <button onclick="insertSymbol('-')">−</button>
+            <button onclick="insertSymbol('*')">×</button>
+            <button onclick="insertSymbol('/')">÷</button>
+            <button onclick="insertSymbol('(')">(</button>
+            <button onclick="insertSymbol(')')">)</button>
+            <button onclick="insertSymbol('abs(')">|x|</button>
+            <button onclick="insertSymbol('asin(')">asin</button>
+            <button onclick="insertSymbol('acos(')">acos</button>
+            <button onclick="insertSymbol('atan(')">atan</button>
+            <button onclick="insertSymbol('sinh(')">sinh</button>
+            <button onclick="insertSymbol('cosh(')">cosh</button>
+            <button onclick="insertSymbol('tanh(')">tanh</button>
+            <button onclick="insertSymbol('ln(')">ln</button>
+            <button onclick="insertSymbol('diff(')">∂</button>
+            <button onclick="insertSymbol('integrate(')">∫</button>
+            <button onclick="insertSymbol('dx')">dx</button>
+        </div>
+        
+        <!-- Action button -->
+        <div class="actions">
+            <button onclick="performAllOperations()">Calculate</button>
+        </div>
+        
+        <!-- Input for x value when evaluating -->
+        <input type="text" id="xValue" class="extra-input" placeholder="Enter x value">
+        
+        <!-- Result display area -->
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Insert symbol text into the function input field.
+        function insertSymbol(symbol) {
+            const input = document.getElementById("functionInput");
+            input.value += symbol;
+            input.focus();
+        }
+        
+        // Clear the input fields and result.
+        function clearInput() {
+            document.getElementById("functionInput").value = "";
+            document.getElementById("xValue").value = "";
+            document.getElementById("result").innerHTML = "";
+        }
+        
+        // Perform all operations: differentiate, integrate, evaluate, and find roots.
+        function performAllOperations() {
+            const func = document.getElementById("functionInput").value;
+            const xValue = document.getElementById("xValue").value;
+            let resultHTML = "";
+
+            // Differentiate
+            try {
+                const diffResult = nerdamer(`diff(${func}, x)`).toString();
+                resultHTML += `<strong>Derivative:</strong> ${diffResult}<br>`;
+            } catch (err) {
+                resultHTML += `<strong>Error in differentiation:</strong> ${err}<br>`;
+            }
+
+            // Integrate
+            try {
+                const intResult = nerdamer(`integrate(${func}, x)`).toString();
+                resultHTML += `<strong>Integral:</strong> ${intResult} + C<br>`;
+            } catch (err) {
+                resultHTML += `<strong>Error in integration:</strong> ${err}<br>`;
+            }
+
+            // Evaluate
+            if (xValue.trim() !== "") {
+                try {
+                    const evalResult = nerdamer(func, { x: xValue }).evaluate().text();
+                    resultHTML += `<strong>Evaluation at x = ${xValue}:</strong> ${evalResult}<br>`;
+                } catch (err) {
+                    resultHTML += `<strong>Error in evaluation:</strong> ${err}<br>`;
+                }
+            } else {
+                resultHTML += `<strong>Error:</strong> Please enter a value for x.<br>`;
+            }
+
+            // Find roots
+            try {
+                const rootsResult = nerdamer.solve(func, 'x').toString();
+                resultHTML += `<strong>Roots:</strong> ${rootsResult}<br>`;
+            } catch (err) {
+                resultHTML += `<strong>Error in finding roots:</strong> ${err}<br>`;
+            }
+
+            document.getElementById("result").innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>
